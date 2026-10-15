@@ -15,7 +15,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM daftar_pelanggan");
 <body>
 
     <h1>Daftar Pelanggan</h1>
-    <h2>Pengelolaan akun pembeli</h2>
+
 
     <div class="filter">
         <input type="text" placeholder="Cari pelanggan...">
