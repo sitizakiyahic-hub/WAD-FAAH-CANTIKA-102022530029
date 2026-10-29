@@ -17,6 +17,6 @@ class AlamatPengiriman extends Model
         'kota',
         'provinsi',
         'kode_pos',
-        'status'
+        'status',
     ];
 }

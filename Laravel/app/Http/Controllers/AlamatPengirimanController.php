@@ -8,30 +8,96 @@ use Illuminate\Http\Request;
 
 class AlamatPengirimanController extends Controller
 {
-    private function aturan() {
-        return ['pelanggan_id' => 'required|integer', 'label' => 'required', 'alamat' => 'required', 'kota' => 'required', 'provinsi' => 'required', 'kode_pos' => 'required', 'status' => 'required'];
+    public function index(Request $request)
+    {
+        $cari = $request->input('cari');
+
+        $query = AlamatPengiriman::query();
+
+        if ($cari) {
+            $query->where(function ($q) use ($cari) {
+                $q->where('label', 'like', "%{$cari}%")
+                    ->orWhere('alamat', 'like', "%{$cari}%")
+                    ->orWhere('kota', 'like', "%{$cari}%")
+                    ->orWhere('provinsi', 'like', "%{$cari}%")
+                    ->orWhere('kode_pos', 'like', "%{$cari}%");
+            });
+
+            $idPelanggan = Pelanggan::where(
+                'nama',
+                'like',
+                "%{$cari}%"
+            )->pluck('id');
+
+            $query->orWhereIn('pelanggan_id', $idPelanggan);
+        }
+
+        $alamat = $query->get();
+        $pelanggan = Pelanggan::all();
+
+        return view('alamat.index', compact(
+            'alamat',
+            'pelanggan',
+            'cari'
+        ));
     }
 
-    public function index() {
-        return view('alamat.index', ['alamat' => AlamatPengiriman::all(), 'pelanggan' => Pelanggan::all()]);
+    public function create()
+    {
+        return redirect()->route('alamat.index');
     }
 
-    public function edit($id) {
-        return view('alamat.edit', ['alamat' => AlamatPengiriman::findOrFail($id), 'pelanggan' => Pelanggan::all()]);
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'pelanggan_id' => 'required|integer',
+            'label' => 'required',
+            'alamat' => 'required',
+            'kota' => 'required',
+            'provinsi' => 'required',
+            'kode_pos' => 'required',
+            'status' => 'required',
+        ]);
+
+        AlamatPengiriman::create($data);
+
+        return redirect()->route('alamat.index')
+            ->with('success', 'Alamat berhasil ditambahkan!');
     }
 
-    public function store(Request $r) {
-        AlamatPengiriman::create($r->validate($this->aturan()));
-        return redirect()->route('alamat.index')->with('success', 'Alamat berhasil ditambahkan!');
+    public function edit($id)
+    {
+        $alamat = AlamatPengiriman::findOrFail($id);
+        $pelanggan = Pelanggan::all();
+
+        return view('alamat.edit', compact('alamat', 'pelanggan'));
     }
 
-    public function update(Request $r, $id) {
-        AlamatPengiriman::findOrFail($id)->update($r->validate($this->aturan()));
-        return redirect()->route('alamat.index')->with('success', 'Alamat berhasil diperbarui!');
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'pelanggan_id' => 'required|integer',
+            'label' => 'required',
+            'alamat' => 'required',
+            'kota' => 'required',
+            'provinsi' => 'required',
+            'kode_pos' => 'required',
+            'status' => 'required',
+        ]);
+
+        $alamat = AlamatPengiriman::findOrFail($id);
+        $alamat->update($data);
+
+        return redirect()->route('alamat.index')
+            ->with('success', 'Alamat berhasil diperbarui!');
     }
 
-    public function destroy($id) {
-        AlamatPengiriman::findOrFail($id)->delete();
-        return redirect()->route('alamat.index')->with('success', 'Alamat berhasil dihapus!');
+    public function destroy($id)
+    {
+        $alamat = AlamatPengiriman::findOrFail($id);
+        $alamat->delete();
+
+        return redirect()->route('alamat.index')
+            ->with('success', 'Alamat berhasil dihapus!');
     }
 }

@@ -4,52 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Pelanggan</title>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f2ff; margin: 0; padding: 30px; color: #333; }
-        .container { max-width: 650px; margin: auto; }
-        h1 { color: #6c4ab6; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 3px 10px #ddd; }
-        label { display: block; margin-top: 16px; margin-bottom: 7px; font-weight: bold; }
-        input, select { width: 100%; padding: 11px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
-        .btn { display: inline-block; padding: 11px 16px; border: none; border-radius: 6px; background: #7856c9; color: white; text-decoration: none; cursor: pointer; margin-top: 20px; }
-        .back { background: #777; margin-left: 5px; }
-        .error { color: #c62828; font-size: 14px; }
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        label { display: block; margin-top: 15px; }
+        input, select { width: 100%; max-width: 450px; padding: 9px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px 15px; background: #2563eb; color: white; border: 0; cursor: pointer; }
+        .error { color: red; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tambah Pelanggan</h1>
-        <p>Silakan isi data pelanggan baru.</p>
+    <h1>Tambah Pelanggan</h1>
 
-        <div class="card">
-            <form action="{{ route('pelanggan.store') }}" method="POST">
-                @csrf
+    @if ($errors->any())
+        <ul class="error">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
 
-                <label for="nama">Nama Pelanggan</label>
-                <input type="text" id="nama" name="nama" value="{{ old('nama') }}" required>
-                @error('nama')<p class="error">{{ $message }}</p>@enderror
+    <form action="{{ route('pelanggan.store') }}" method="POST">
+        @csrf
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
-                @error('email')<p class="error">{{ $message }}</p>@enderror
+        <label>Nama</label>
+        <input type="text" name="nama" value="{{ old('nama') }}" required>
 
-                <label for="no_hp">Nomor HP</label>
-                <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" required>
-                @error('no_hp')<p class="error">{{ $message }}</p>@enderror
+        <label>Email</label>
+        <input type="email" name="email" value="{{ old('email') }}" required>
 
-                <label for="member">Member</label>
-                <select id="member" name="member" required>
-                    <option value="">-- Pilih Member --</option>
-                    <option value="Gold" {{ old('member') == 'Gold' ? 'selected' : '' }}>Gold</option>
-                    <option value="Platinum" {{ old('member') == 'Platinum' ? 'selected' : '' }}>Platinum</option>
-                    <option value="Silver" {{ old('member') == 'Silver' ? 'selected' : '' }}>Silver</option>
-                </select>
-                @error('member')<p class="error">{{ $message }}</p>@enderror
+        <label>No. HP</label>
+        <input type="text" name="no_hp" value="{{ old('no_hp') }}" required>
 
-                <button type="submit" class="btn">Simpan Pelanggan</button>
-                <a href="{{ route('pelanggan.index') }}" class="btn back">Kembali</a>
-            </form>
-        </div>
-    </div>
+        <label>Member</label>
+        <select name="member" required>
+            <option value="">Pilih Member</option>
+            <option value="Gold">Gold</option>
+            <option value="Platinum">Platinum</option>
+            <option value="Silver">Silver</option>
+        </select>
+
+        <button type="submit">Simpan</button>
+        <a href="{{ route('pelanggan.index') }}">Batal</a>
+    </form>
 </body>
 </html>

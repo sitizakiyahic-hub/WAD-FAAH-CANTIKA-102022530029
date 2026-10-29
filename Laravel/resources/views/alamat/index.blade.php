@@ -4,137 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alamat Pengiriman</title>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
-        body { font-family: Arial, sans-serif; background: #f5f2ff; margin: 0; padding: 30px; color: #333; }
-        .container { max-width: 1200px; margin: auto; }
-        h1 { color: #6c4ab6; }
-        .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 3px 10px #ddd; margin-top: 20px; }
+        body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
+        input, select { padding: 9px; margin: 5px 0; box-sizing: border-box; }
+        .btn, button { display: inline-block; padding: 8px 12px; background: #2563eb; color: white; text-decoration: none; border: 0; cursor: pointer; border-radius: 4px; }
+        .hapus { background: #dc2626; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
-        th { background: #7856c9; color: white; }
-        .btn, .btn-edit { display: inline-block; padding: 8px 14px; background: #7856c9; color: white; border-radius: 6px; text-decoration: none; }
-        .btn-edit { padding: 7px 12px; border-radius: 5px; white-space: nowrap; }
-        .message { background: #e4f8e8; padding: 12px; border-radius: 6px; }
-        label { display: block; margin-top: 14px; margin-bottom: 6px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-family: Arial, sans-serif; }
-        textarea { min-height: 90px; resize: vertical; }
-        .btn-tambah { margin-top: 18px; padding: 10px 16px; background: #7856c9; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        .error { color: #c62828; background: #ffeaea; padding: 10px; border-radius: 6px; }
-        .table-wrapper { overflow-x: auto; }
-        .btn-hapus { background: #dc3545; color: white; padding: 7px 12px; border: none; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+        th, td { border: 1px solid #ddd; padding: 9px; text-align: left; }
+        th { background: #f3f4f6; }
+        .pesan { color: green; }
+        .form-tambah { padding: 15px; background: #f9fafb; border: 1px solid #ddd; }
+        .form-tambah label { display: block; margin-top: 10px; }
+        .form-tambah input, .form-tambah select { width: 100%; max-width: 500px; }
+        .error { color: red; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Alamat Pengiriman</h1>
-        <p>Pengelolaan daftar alamat pengiriman pelanggan</p>
+    <h1>Alamat Pengiriman</h1>
 
-        @if (session('success'))
-            <p class="message">{{ session('success') }}</p>
-        @endif
+    <p>
+        <a href="{{ route('pelanggan.index') }}" class="btn">Data Pelanggan</a>
+    </p>
 
-        <div class="card">
-            <h2>Data Alamat</h2>
-            <h3>Tambah Alamat Pengiriman</h3>
+    @if (session('success'))
+        <p class="pesan">{{ session('success') }}</p>
+    @endif
 
-            @if ($errors->any())
-                <div class="error">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    @if ($errors->any())
+        <ul class="error">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
 
-            <form action="{{ route('alamat.store') }}" method="POST">
-                @csrf
+    <h2>Cari Alamat</h2>
 
-                <label for="pelanggan_id">Nama Pelanggan</label>
-                <select name="pelanggan_id" id="pelanggan_id" required>
-                    <option value="">-- Pilih Pelanggan --</option>
-                    @foreach ($pelanggan as $data)
-                        <option value="{{ $data->id }}" {{ old('pelanggan_id') == $data->id ? 'selected' : '' }}>
-                            {{ $data->nama }}
-                        </option>
-                    @endforeach
-                </select>
+    <form action="{{ route('alamat.index') }}" method="GET">
+        <input type="text" name="cari"
+               placeholder="Cari label, alamat, kota, atau pelanggan..."
+               value="{{ $cari ?? '' }}">
 
-                <label for="label">Label Alamat</label>
-                <input type="text" name="label" id="label" value="{{ old('label') }}" placeholder="Contoh: Rumah atau Kantor" required>
+        <button type="submit">Cari</button>
+        <a href="{{ route('alamat.index') }}">Reset</a>
+    </form>
 
-                <label for="alamat">Alamat Lengkap</label>
-                <textarea name="alamat" id="alamat" required>{{ old('alamat') }}</textarea>
+    <hr>
 
-                <label for="kota">Kota</label>
-                <input type="text" name="kota" id="kota" value="{{ old('kota') }}" required>
+    <h2>Tambah Alamat</h2>
 
-                <label for="provinsi">Provinsi</label>
-                <input type="text" name="provinsi" id="provinsi" value="{{ old('provinsi') }}" required>
+    <div class="form-tambah">
+        <form action="{{ route('alamat.store') }}" method="POST">
+            @csrf
 
-                <label for="kode_pos">Kode Pos</label>
-                <input type="text" name="kode_pos" id="kode_pos" value="{{ old('kode_pos') }}" required>
+            <label>Pelanggan</label>
+            <select name="pelanggan_id" required>
+                <option value="">Pilih Pelanggan</option>
+                @foreach ($pelanggan as $orang)
+                    <option value="{{ $orang->id }}"
+                        {{ old('pelanggan_id') == $orang->id ? 'selected' : '' }}>
+                        {{ $orang->nama }}
+                    </option>
+                @endforeach
+            </select>
 
-                <label for="status">Status</label>
-                <select name="status" id="status" required>
-                    <option value="">-- Pilih Status --</option>
-                    <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="Tidak Aktif" {{ old('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                </select>
+            <label>Label Alamat</label>
+            <input type="text" name="label" value="{{ old('label') }}"
+                   placeholder="Contoh: Rumah" required>
 
-                <button type="submit" class="btn-tambah">Simpan Alamat</button>
-            </form>
+            <label>Alamat Lengkap</label>
+            <input type="text" name="alamat" value="{{ old('alamat') }}"
+                   placeholder="Masukkan alamat lengkap" required>
 
-            <h3>Daftar Alamat Pengiriman</h3>
+            <label>Kota</label>
+            <input type="text" name="kota" value="{{ old('kota') }}" required>
 
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Pelanggan</th>
-                            <th>Label</th>
-                            <th>Alamat</th>
-                            <th>Kota</th>
-                            <th>Provinsi</th>
-                            <th>Kode Pos</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($alamat as $data)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ optional($pelanggan->firstWhere('id', $data->pelanggan_id))->nama ?? 'Pelanggan tidak ditemukan' }}</td>
-                                <td>{{ $data->label }}</td>
-                                <td>{{ $data->alamat }}</td>
-                                <td>{{ $data->kota }}</td>
-                                <td>{{ $data->provinsi }}</td>
-                                <td>{{ $data->kode_pos }}</td>
-                                <td>{{ $data->status }}</td>
-                                <td>
-                                    <a class="btn-edit" href="{{ route('alamat.edit', $data->id) }}">Edit</a>
-                                    <form action="{{ route('alamat.destroy', $data->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus alamat ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-hapus">Hapus</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9">Belum ada data alamat pengiriman.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <label>Provinsi</label>
+            <input type="text" name="provinsi" value="{{ old('provinsi') }}" required>
 
-            <p>Jumlah alamat: <strong>{{ $alamat->count() }}</strong></p>
+            <label>Kode Pos</label>
+            <input type="text" name="kode_pos" value="{{ old('kode_pos') }}" required>
 
-            <a class="btn" href="{{ route('pelanggan.index') }}">Kembali ke Daftar Pelanggan</a>
-        </div>
+            <label>Status</label>
+            <select name="status" required>
+                <option value="">Pilih Status</option>
+                <option value="Utama" {{ old('status') == 'Utama' ? 'selected' : '' }}>Utama</option>
+                <option value="Aktif" {{ old('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="Nonaktif" {{ old('status') == 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+            </select>
+
+            <br>
+            <button type="submit" style="margin-top: 15px;">Simpan Alamat</button>
+        </form>
     </div>
+
+    <h2>Daftar Alamat</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Pelanggan</th>
+                <th>Label</th>
+                <th>Alamat</th>
+                <th>Kota</th>
+                <th>Provinsi</th>
+                <th>Kode Pos</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($alamat as $item)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>
+                        {{ $pelanggan->firstWhere('id', $item->pelanggan_id)?->nama ?? 'Pelanggan tidak ditemukan' }}
+                    </td>
+                    <td>{{ $item->label }}</td>
+                    <td>{{ $item->alamat }}</td>
+                    <td>{{ $item->kota }}</td>
+                    <td>{{ $item->provinsi }}</td>
+                    <td>{{ $item->kode_pos }}</td>
+                    <td>{{ $item->status }}</td>
+                    <td>
+                        <a href="{{ route('alamat.edit', $item->id) }}">Edit</a>
+
+                        <form action="{{ route('alamat.destroy', $item->id) }}"
+                              method="POST"
+                              style="display:inline"
+                              onsubmit="return confirm('Yakin ingin menghapus alamat ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="hapus">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9">Belum ada alamat pengiriman.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </body>
 </html>
